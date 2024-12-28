@@ -13,7 +13,7 @@ const MyScreen = () => {
       style={{
         borderWidth: 1,
         borderColor: 'red',
-        maxHeight: 200,
+        maxHeight: 300,
       }}
     >
       {Array(10)
@@ -30,7 +30,7 @@ const MyScreen = () => {
             {Array(3)
               .fill(null)
               .map((_, itemIndex) => (
-                <Tile key={itemIndex} index={itemIndex} />
+                <Tile key={itemIndex} title={`${rowIndex}-${itemIndex}`} />
               ))}
           </View>
         ))}
@@ -40,7 +40,7 @@ const MyScreen = () => {
 
 export default MyScreen;
 
-const Tile = ({ index }: { index: number }) => {
+function Tile({ title }: { title: string }) {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
@@ -53,7 +53,7 @@ const Tile = ({ index }: { index: number }) => {
       onBlur={() => setIsFocused(false)}
       onFocus={() => setIsFocused(true)}
     >
-      <Text>{index}</Text>
+      <Text>{title}</Text>
     </Pressable>
   );
-};
+}
