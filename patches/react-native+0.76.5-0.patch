@@ -1,35 +1,42 @@
 diff --git a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
-index 36c1576..efaa5f7 100644
+index 36c1576..756f694 100644
 --- a/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
 +++ b/node_modules/react-native/ReactAndroid/src/main/java/com/facebook/react/views/scroll/ReactScrollView.java
-@@ -405,7 +405,8 @@ public class ReactScrollView extends ScrollView
+@@ -405,11 +405,34 @@ public class ReactScrollView extends ScrollView
      /* Offset from child's local coordinates to ScrollView coordinates */
      offsetDescendantRectToMyCoords(child, tempRect);
  
 -    int scrollDelta = computeScrollDeltaToGetChildRectOnScreen(tempRect);
-+    // int scrollDelta = computeScrollDeltaToGetChildRectOnScreen(tempRect);
-+    int scrollDelta = computeScrollDeltaToGetChildRectAtTop(tempRect);
++    // See if any scrolling needed to make child completely on screen
++    // int scrollDeltaToScreen = computeScrollDeltaToGetChildRectOnScreen(tempRect);
  
-     if (scrollDelta != 0) {
-       scrollBy(0, scrollDelta);
-@@ -420,6 +421,20 @@ public class ReactScrollView extends ScrollView
-     return super.computeScrollDeltaToGetChildRectOnScreen(rect);
-   }
- 
+-    if (scrollDelta != 0) {
+-      scrollBy(0, scrollDelta);
++    // See if any scrolling needed to make child appear at top of screen
++    int scrollDeltaToTop = computeScrollDeltaToGetChildRectAtTop(tempRect);
++
++    if (scrollDeltaToTop != 0) {
++      // Original code: just scroll enough to get the child on screen
++      // scrollBy(0, scrollDeltaToScreen);
++      // Better: if scrolling needed, smooth scroll the focused child to the top
++      reactSmoothScrollTo(0, tempRect.top);
++      // Enable this to force scrolling to snap points
++      // smoothScrollAndSnap(scrollDelta > 0 ? 100 : -100);
++    }
++  }
++
 +  /**
 +   * Experimental code to scroll a child view exactly to the top of the visible
 +   * area of the scrollview
-+   * @param rect
++   * @param rect Rectangle defining the frame of the child within the scrollview
 +   * @return Delta from current scroll position to the top of the child view
 +   */
 +  protected int computeScrollDeltaToGetChildRectAtTop(Rect rect) {
 +    if (!mScrollEnabled) {
 +      return 0;
-+    }
+     }
 +    int screenTop = getScrollY();
 +    return rect.top - screenTop;
-+  }
-+
+   }
+ 
    @Override
-   protected void onScrollChanged(int x, int y, int oldX, int oldY) {
-     super.onScrollChanged(x, y, oldX, oldY);
